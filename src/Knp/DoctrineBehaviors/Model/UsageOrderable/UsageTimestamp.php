@@ -16,7 +16,7 @@ trait UsageTimestamp
     /**
      * @var \Datetime
      *
-     * @ORM\Column(type="Date")
+     * @ORM\Column(type="date")
      */
     protected $date;
 
