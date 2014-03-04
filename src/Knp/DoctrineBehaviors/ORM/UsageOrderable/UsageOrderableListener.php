@@ -118,7 +118,11 @@ class UserOrderableListener extends AbstractListener
         $entity        = $eventArgs->getEntity();
         $classMetadata = $em->getClassMetadata(get_class($entity));
 
-        $entity->incrementUsage();
+        if($this->isUsageOrderable($classMetadata)) {
+            $entity->incrementUsage();
+            $em->persist($entity);
+            $em->flush();
+        }
     }
 
 

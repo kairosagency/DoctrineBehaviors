@@ -14,6 +14,9 @@ parameters:
     knp.doctrine_behaviors.loggable_listener.logger_callable.class: Knp\DoctrineBehaviors\ORM\Loggable\LoggerCallable
     knp.doctrine_behaviors.geocodable_listener.class: Knp\DoctrineBehaviors\ORM\Geocodable\GeocodableListener
     knp.doctrine_behaviors.sluggable_listener.class: Knp\DoctrineBehaviors\ORM\Sluggable\SluggableListener
+    knp.doctrine_behaviors.usageorderable_listener.class: Knp\DoctrineBehaviors\ORM\UsageOrderable\UsageOrderableListener
+    knp.doctrine_behaviors.usageorderable_listener.usageorderable_trait: Knp\DoctrineBehaviors\Model\UsageOrderable\UsageOrderable
+    knp.doctrine_behaviors.usageorderable_listener.usagetimestamp_trait: Knp\DoctrineBehaviors\Model\UsageOrderable\UsageTimestamp
 
 services:
     knp.doctrine_behaviors.reflection.class_analyzer:
@@ -31,6 +34,18 @@ services:
             - "%knp.doctrine_behaviours.translatable_listener.translation_trait%"
         tags:
             - { name: doctrine.event_subscriber }
+
+    knp.doctrine_behaviors.usageorderable_listener:
+        class:   "%knp.doctrine_behaviors.usageorderable_listener.class%"
+        public:  false
+        arguments:
+            - "@knp.doctrine_behaviors.reflection.class_analyzer"
+            - "%knp.doctrine_behaviors.reflection.is_recursive%"
+            - "%knp.doctrine_behaviors.usageorderable_listener.usageorderable_trait%"
+            - "%knp.doctrine_behaviors.usageorderable_listener.usagetimestamp_trait%"
+        tags:
+            - { name: doctrine.event_subscriber }
+
 
     knp.doctrine_behaviors.translatable_listener.current_locale_callable:
         class:           "%knp.doctrine_behaviors.translatable_listener.current_locale_callable.class%"
