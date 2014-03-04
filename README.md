@@ -17,6 +17,7 @@ It currently handles:
  * [geocodable](#geocodable)
  * [filterable](#filterable)
  * [sluggable](#sluggable)
+ * [usageOrderable](#usageOrderable)
 
 ## Notice:
 
@@ -77,6 +78,7 @@ class Category implements ORMBehaviors\Tree\NodeInterface, \ArrayAccess
         ORMBehaviors\Geocodable\Geocodable,
         ORMBehaviors\Loggable\Loggable,
         ORMBehaviors\Sluggable\Sluggable
+        ORMBehaviors\UsageOrderable\UsageOrderable
     ;
 
     /**
@@ -546,3 +548,57 @@ For an example of DI service that is invoked, look at the `Knp\DoctrineBehaviors
 
 In the case of geocodable, you can set it as any service that implements `__invoke` or anonymous function that returns a `Knp\DoctrineBehaviors\ORM\Geocodable\Type\Point` object.
 
+
+<a name="usageOrderable" id="usageOrderable"></a>
+### usageOrderable:
+
+usageOrderable behavior is meant to log useractivity in database. This can be usefull to sort entities given that activity.
+This naming convention avoids you to handle manually entity associations. It is handled automatically by the UsageOrderableListener.
+
+In order to use UsageOrderable trait, you will have to create this entity.
+
+
+``` php
+
+<?php
+
+use Doctrine\ORM\Mapping as ORM;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+
+/**
+ * @ORM\Entity
+ */
+class CategoryUsageTimestamp
+{
+    use ORMBehaviors\UsageOrderable\UsageTimestamp;
+
+    /**
+     * @ORM\Column(type="string", length=255)
+     */
+    protected $activity;
+
+    /**
+     * @return string
+     */
+    public function getActivity()
+    {
+        return $this->activity;
+    }
+
+    /**
+     * @param  string
+     * @return null
+     */
+    public function setActivity($activity)
+    {
+        $this->activity = $activity;
+    }
+}
+
+```
+
+Now you can work on your timstamps using `getUsageTimestamp` methods or alse sort your entities given this activity.
+
+### Roadmap:
+
+* add tests for usageOrderable
