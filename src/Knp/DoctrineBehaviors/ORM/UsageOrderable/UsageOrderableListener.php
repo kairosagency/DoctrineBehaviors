@@ -117,6 +117,8 @@ class UserOrderableListener extends AbstractListener
         $em            = $eventArgs->getEntityManager();
         $entity        = $eventArgs->getEntity();
         $classMetadata = $em->getClassMetadata(get_class($entity));
+
+        $entity->incrementUsage();
     }
 
 

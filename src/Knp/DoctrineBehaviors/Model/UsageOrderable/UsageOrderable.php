@@ -21,6 +21,25 @@ trait UsageOrderable
         return $this->usageTimestamps = $this->usageTimestamps ?: new ArrayCollection();
     }
 
+
+    /**
+     *
+     * @return UsageOrderable
+     */
+    public function incrementUsage()
+    {
+        $timestamp = $this->getUsageTimestamp()->last();
+        $now = new \DateTime('now');
+        if($timestamp->getDate()->getTimestamp()%86400 == $now->getTimestamp()%86400) {
+            $timestamp->setCount($timestamp->getCount() + 1);
+        }
+        else {
+            $construct = $this->getEntityName."UsageTimestamp";
+            $this->addUsageTimestamp(new $construct());
+        }
+    }
+
+
     /**
      * Adds new translation.
      *
