@@ -11,7 +11,7 @@
 
 namespace Knp\DoctrineBehaviors\ORM\UsageOrderable;
 
-use Knp\DoctrineBehaviors\Model\UsageOrderable\UsageOrderable;
+
 use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 
 use Knp\DoctrineBehaviors\ORM\AbstractListener;
@@ -19,12 +19,13 @@ use Knp\DoctrineBehaviors\ORM\AbstractListener;
 use Doctrine\Common\EventSubscriber,
     Doctrine\ORM\Mapping\ClassMetadata,
     Doctrine\ORM\Event\LoadClassMetadataEventArgs,
-    Doctrine\ORM\Event\LifecycleEventArgs,
+    Doctrine\ORM\Event\PreUpdateEventArgs,
+    Doctrine\ORM\Event\OnFlushEventArgs,
     Doctrine\ORM\Events;
 
 
 
-class UserOrderableListener extends AbstractListener
+class UsageOrderableListener extends AbstractListener
 {
     private $usageOrderableTrait;
     private $usageTimestampTrait;
@@ -49,8 +50,8 @@ class UserOrderableListener extends AbstractListener
             return;
         }
 
-        if ($this->isUserOrderable($classMetadata)) {
-            $this->mapUserOrderable($classMetadata);
+        if ($this->isUsageOrderable($classMetadata)) {
+            $this->mapUsageOrderable($classMetadata);
         }
 
         if ($this->isUsageTimestamp($classMetadata)) {
@@ -58,12 +59,12 @@ class UserOrderableListener extends AbstractListener
         }
     }
 
-    private function mapTranslatable(ClassMetadata $classMetadata)
+    private function mapUsageOrderable(ClassMetadata $classMetadata)
     {
-        if (!$classMetadata->hasAssociation('translations')) {
+        if (!$classMetadata->hasAssociation('usageTimestamps')) {
             $classMetadata->mapOneToMany([
                 'fieldName'     => 'usageTimestamps',
-                'mappedBy'      => '$usageOrderable',
+                'mappedBy'      => 'usageOrderable',
                 'indexBy'       => 'date',
                 'cascade'       => ['persist', 'merge', 'remove'],
                 'targetEntity'  => $classMetadata->name.'UsageTimestamp',
@@ -72,18 +73,18 @@ class UserOrderableListener extends AbstractListener
         }
     }
 
-    private function mapTranslation(ClassMetadata $classMetadata)
+    private function mapUsageTimestamp(ClassMetadata $classMetadata)
     {
-        if (!$classMetadata->hasAssociation('translatable')) {
+        if (!$classMetadata->hasAssociation('usageOrderable')) {
             $classMetadata->mapManyToOne([
-                'fieldName'    => '$usageOrderable',
+                'fieldName'    => 'usageOrderable',
                 'inversedBy'   => 'usageTimestamps',
                 'joinColumns'  => [[
-                    'name'                 => 'usage_orderable_id',
+                    'name'                 => 'usageorderable_id',
                     'referencedColumnName' => 'id',
                     'onDelete'             => 'CASCADE'
                 ]],
-                'targetEntity' => substr($classMetadata->name, 0, -11)
+                'targetEntity' => substr($classMetadata->name, 0, -14)
             ]);
         }
     }
@@ -107,21 +108,34 @@ class UserOrderableListener extends AbstractListener
      */
     private function isUsageTimestamp(ClassMetadata $classMetadata)
     {
-        return $this->getClassAnalyzer()->hasTrait($classMetadata->reflClass, $this->usageTimestamp, $this->isRecursive);
+        return $this->getClassAnalyzer()->hasTrait($classMetadata->reflClass, $this->usageTimestampTrait, $this->isRecursive);
     }
 
 
-
-    public function postLoad(LifecycleEventArgs $eventArgs)
+    /**
+     * @param PreUpdateEventArgs $eventArgs
+     */
+    public function onFlush(OnFlushEventArgs $eventArgs)
     {
-        $em            = $eventArgs->getEntityManager();
-        $entity        = $eventArgs->getEntity();
-        $classMetadata = $em->getClassMetadata(get_class($entity));
+        $em = $eventArgs->getEntityManager();
+        $uow = $em->getUnitOfWork();
 
-        if($this->isUsageOrderable($classMetadata)) {
-            $entity->incrementUsage();
-            $em->persist($entity);
-            $em->flush();
+        foreach ($uow->getScheduledEntityUpdates() as $entity) {
+            $classMetadata = $em->getClassMetadata(get_class($entity));
+            if ($this->isUsageOrderable($classMetadata)) {
+                $timestamp = $entity->generateTimestamp();
+                $timestampMd = $em->getClassMetadata(get_class($timestamp));
+                if ($this->isUsageTimestamp($timestampMd)) {
+
+                    $entity->addUsageTimestamp($timestamp);
+                    $timestamp->setUsageOrderable($entity);
+                    $em->persist($entity);
+                    $em->persist($timestamp);
+
+                    $uow->computeChangeSet($classMetadata, $entity);
+                    $uow->computeChangeSet($timestampMd, $timestamp);
+                }
+            }
         }
     }
 
@@ -135,7 +149,7 @@ class UserOrderableListener extends AbstractListener
     {
         return [
             Events::loadClassMetadata,
-            Events::postLoad,
+            Events::onFlush,
         ];
     }
 }

@@ -16,9 +16,9 @@ trait UsageTimestamp
     /**
      * @var \Datetime
      *
-     * @ORM\Column(type="date")
+     * @ORM\Column(type="datetime")
      */
-    protected $date;
+    protected $datetime;
 
     /**
      * @var int
@@ -35,6 +35,11 @@ trait UsageTimestamp
      */
     protected $usageOrderable;
 
+
+    public function __construct() {
+        $this->count = 1;
+        $this->datetime = new \DateTime('now', new \DateTimeZone('UTC'));
+    }
 
 
     /**

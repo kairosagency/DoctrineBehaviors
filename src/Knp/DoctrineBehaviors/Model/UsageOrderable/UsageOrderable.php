@@ -3,9 +3,13 @@
 namespace Knp\DoctrineBehaviors\Model\UsageOrderable;
 
 use Doctrine\Common\Collections\ArrayCollection;
+use Knp\DoctrineBehaviors\Model as ORMBehaviors;
+use Doctrine\ORM\Event\LifeCycleEventArgs;
 
 trait UsageOrderable
 {
+    use ORMBehaviors\Timestampable\Timestampable;
+
     /**
      * @var UsageTimestamp
      */
@@ -20,25 +24,6 @@ trait UsageOrderable
     {
         return $this->usageTimestamps = $this->usageTimestamps ?: new ArrayCollection();
     }
-
-
-    /**
-     *
-     * @return UsageOrderable
-     */
-    public function incrementUsage()
-    {
-        $timestamp = $this->getUsageTimestamp()->last();
-        $now = new \DateTime('now');
-        if($timestamp->getDate()->getTimestamp()%86400 == $now->getTimestamp()%86400) {
-            $timestamp->setCount($timestamp->getCount() + 1);
-        }
-        else {
-            $construct = $this->getEntityName."UsageTimestamp";
-            $this->addUsageTimestamp(new $construct());
-        }
-    }
-
 
     /**
      * Adds new translation.
@@ -59,6 +44,27 @@ trait UsageOrderable
     public function removeUsageTimestamp($usageTimestamp)
     {
         $this->getUsageTimestamp()->removeElement($usageTimestamp);
+    }
+
+    /**
+     *
+     * @return UsageOrderable
+     */
+    public function incrementUsageTimestamp()
+    {
+        $timestamp = $this->generateTimestamp();
+        $this->addUsageTimestamp($timestamp);
+        $timestamp->setUsageOrderable($this);
+    }
+
+    /**
+     *
+     * @return UsageOrderable
+     */
+    public function generateTimestamp()
+    {
+        $timestamp = new \ReflectionClass($this->getEntityName()."UsageTimestamp");
+        return $timestamp->newInstance();
     }
 
 
