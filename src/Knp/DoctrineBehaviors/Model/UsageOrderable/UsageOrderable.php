@@ -8,7 +8,6 @@ use Doctrine\ORM\Event\LifeCycleEventArgs;
 
 trait UsageOrderable
 {
-    use ORMBehaviors\Timestampable\Timestampable;
 
     /**
      * @var UsageTimestamp
