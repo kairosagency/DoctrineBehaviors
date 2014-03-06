@@ -3,6 +3,7 @@
 namespace Knp\DoctrineBehaviors\Model\UsageOrderable\Manager;
 
 use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\Mapping\ClassMetadata;
 use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 
@@ -25,6 +26,8 @@ Class UsageOrderableManager
      */
     protected $classAnalyzer;
 
+    protected $isRecursive;
+
     /**
      * @var trait
      */
@@ -35,12 +38,13 @@ Class UsageOrderableManager
      */
     private $usageTimestampTrait;
 
-    public function __construct(EventDispatcherInterface $dispatcher, EntityManager $em, ClassAnalyzer $classAnalyzer,
+    public function __construct(EventDispatcherInterface $dispatcher, EntityManager $em, ClassAnalyzer $classAnalyzer, $isRecursive,
                                 $usageOrderableTrait, $usageTimestampTrait)
     {
         $this->dispatcher = $dispatcher;
         $this->em = $em;
         $this->classAnalyzer = $classAnalyzer;
+        $this->isRecursive = (bool) $isRecursive;
         $this->usageOrderableTrait = $usageOrderableTrait;
         $this->usageTimestampTrait = $usageTimestampTrait;
     }
@@ -55,7 +59,7 @@ Class UsageOrderableManager
             $timestampMetadata = $this->em->getClassMetadata(get_class($timestamp));
 
             if ($this->isUsageTimestamp($timestampMetadata)) {
-                
+
                 $entity->addUsageTimestamp($timestamp);
                 $timestamp->setUsageOrderable($entity);
                 $this->save($entity);
@@ -103,5 +107,13 @@ Class UsageOrderableManager
     private function isUsageTimestamp(ClassMetadata $classMetadata)
     {
         return $this->getClassAnalyzer()->hasTrait($classMetadata->reflClass, $this->usageTimestampTrait, $this->isRecursive);
+    }
+
+    /**
+     * @return ClassAnalyzer
+     */
+    public function getClassAnalyzer()
+    {
+        return $this->classAnalyzer;
     }
 }

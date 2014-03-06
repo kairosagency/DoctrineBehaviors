@@ -27,6 +27,7 @@ services:
             - "@event_dispatcher"
             - "@doctrine.orm.entity_manager"
             - "@knp.doctrine_behaviors.reflection.class_analyzer"
+            - "%knp.doctrine_behaviors.reflection.is_recursive%"
             - "%knp.doctrine_behaviors.usageorderable.usageorderable_trait%"
             - "%knp.doctrine_behaviors.usageorderable.usagetimestamp_trait%"
 
@@ -135,4 +136,3 @@ services:
             - "%knp.doctrine_behaviors.reflection.is_recursive%"
         tags:
             - { name: doctrine.event_subscriber }
-
