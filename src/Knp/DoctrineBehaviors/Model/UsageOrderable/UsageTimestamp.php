@@ -28,13 +28,19 @@ trait UsageTimestamp
     protected $count;
 
     /**
+     * @var int
+     *
+     * @ORM\Column(type="int")
+     */
+    protected $userid;
+
+    /**
      * @var UsageOrderable
      *
      * Will be mapped to translatable entity
      * by TranslatableListener
      */
     protected $usageOrderable;
-
 
     public function __construct() {
         $this->count = 1;
