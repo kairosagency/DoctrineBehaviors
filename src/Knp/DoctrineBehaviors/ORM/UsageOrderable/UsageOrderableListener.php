@@ -151,7 +151,7 @@ class UsageOrderableListener extends AbstractListener
     {
         return [
             Events::loadClassMetadata,
-            Events::onFlush,
+            //Events::onFlush,
         ];
     }
 }

@@ -57,17 +57,6 @@ trait UsageOrderable
     }
 
     /**
-     *
-     * @return UsageOrderable
-     */
-    public function generateTimestamp()
-    {
-        $timestamp = new \ReflectionClass($this->getEntityName()."UsageTimestamp");
-        return $timestamp->newInstance();
-    }
-
-
-    /**
      * Returns entity class name.
      *
      * @return string
