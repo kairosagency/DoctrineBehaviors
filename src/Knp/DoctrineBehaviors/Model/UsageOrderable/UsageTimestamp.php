@@ -30,7 +30,7 @@ trait UsageTimestamp
     /**
      * @var int
      *
-     * @ORM\Column(type="int")
+     * @ORM\Column(type="bigint")
      */
     protected $userId;
 
