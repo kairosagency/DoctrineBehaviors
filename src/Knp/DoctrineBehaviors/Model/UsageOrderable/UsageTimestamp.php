@@ -32,7 +32,7 @@ trait UsageTimestamp
      *
      * @ORM\Column(type="int")
      */
-    protected $userid;
+    protected $userId;
 
     /**
      * @var UsageOrderable
@@ -113,6 +113,25 @@ trait UsageTimestamp
     public function setCount($count)
     {
         $this->count = $count;
+        return $this;
+    }
+
+
+    /**
+     * @return int
+     */
+    public function getUserId()
+    {
+        return $this->userId;
+    }
+
+    /**
+     * @param $userId
+     * @return $this
+     */
+    public function setUserId($userId)
+    {
+        $this->userId = $userId;
         return $this;
     }
 }

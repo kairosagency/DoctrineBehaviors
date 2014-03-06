@@ -49,7 +49,7 @@ Class UsageOrderableManager
         $this->usageTimestampTrait = $usageTimestampTrait;
     }
 
-    public function addUsageTimestamp($entity) {
+    public function addUsageTimestamp($entity, $userId = null) {
 
         $entityMetadata = $this->em->getClassMetadata(get_class($entity));
 
@@ -61,7 +61,7 @@ Class UsageOrderableManager
             if ($this->isUsageTimestamp($timestampMetadata)) {
 
                 $entity->addUsageTimestamp($timestamp);
-                $timestamp->setUsageOrderable($entity);
+                $timestamp->setUserId($userId)->setUsageOrderable($entity);
                 $this->save($entity);
             }
         }
