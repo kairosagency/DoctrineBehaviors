@@ -6,6 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\Security\Core;
 
 
 Class UsageOrderableManager
@@ -17,6 +18,11 @@ Class UsageOrderableManager
     protected $dispatcher;
 
     /**
+     * @var SecurityContext
+     */
+    protected $security;
+
+    /**
      * @var EntityManager
      */
     protected $em;
@@ -26,6 +32,9 @@ Class UsageOrderableManager
      */
     protected $classAnalyzer;
 
+    /**
+     * @var bool
+     */
     protected $isRecursive;
 
     /**
@@ -38,10 +47,11 @@ Class UsageOrderableManager
      */
     private $usageTimestampTrait;
 
-    public function __construct(EventDispatcherInterface $dispatcher, EntityManager $em, ClassAnalyzer $classAnalyzer, $isRecursive,
+    public function __construct(EventDispatcherInterface $dispatcher, SecurityContext $security, EntityManager $em, ClassAnalyzer $classAnalyzer, $isRecursive,
                                 $usageOrderableTrait, $usageTimestampTrait)
     {
         $this->dispatcher = $dispatcher;
+        $this->security = $security;
         $this->em = $em;
         $this->classAnalyzer = $classAnalyzer;
         $this->isRecursive = (bool) $isRecursive;
@@ -49,7 +59,7 @@ Class UsageOrderableManager
         $this->usageTimestampTrait = $usageTimestampTrait;
     }
 
-    public function addUsageTimestamp($entity, $userId = null) {
+    public function addUsageTimestamp($entity) {
 
         $entityMetadata = $this->em->getClassMetadata(get_class($entity));
 
@@ -59,6 +69,13 @@ Class UsageOrderableManager
             $timestampMetadata = $this->em->getClassMetadata(get_class($timestamp));
 
             if ($this->isUsageTimestamp($timestampMetadata)) {
+
+                $userId = null;
+                if($user = $this->security->getToken()->getUser()) {
+                    if($user->getId()) {
+                        $userId = $user->getId();
+                    }
+                }
 
                 $entity->addUsageTimestamp($timestamp);
                 $timestamp->setUserId($userId)->setUsageOrderable($entity);
