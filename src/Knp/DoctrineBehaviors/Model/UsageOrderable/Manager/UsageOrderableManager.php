@@ -6,7 +6,7 @@ use Doctrine\ORM\EntityManager;
 use Doctrine\ORM\Mapping\ClassMetadata;
 use Knp\DoctrineBehaviors\Reflection\ClassAnalyzer;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
-use Symfony\Component\Security\Core;
+use Symfony\Component\Security\Core\SecurityContext;
 
 
 Class UsageOrderableManager
