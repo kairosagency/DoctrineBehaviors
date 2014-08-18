@@ -1,4 +1,5 @@
 parameters:
+    kairos.doctrine_behaviors.reflection.class_analyzer.class: Kairos\DoctrineBehaviors\Reflection\ClassAnalyzer
     kairos.doctrine_behaviors.reflection.is_recursive: true
     kairos.doctrine_behaviors.usageorderable.class: Kairos\DoctrineBehaviors\Model\UsageOrderable\Manager\UsageOrderableManager
     kairos.doctrine_behaviors.usageorderable_listener.class: Kairos\DoctrineBehaviors\ORM\UsageOrderable\UsageOrderableListener
