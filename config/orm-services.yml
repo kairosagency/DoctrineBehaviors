@@ -7,6 +7,9 @@ parameters:
     kairos.doctrine_behaviors.usageorderable.usagetimestamp_trait: Kairos\DoctrineBehaviors\Model\UsageOrderable\UsageTimestamp
 
 services:
+    kairos.doctrine_behaviors.reflection.class_analyzer:
+        class:   "%kairos.doctrine_behaviors.reflection.class_analyzer.class%"
+        public:  false
 
     kairos.doctrine_behaviors.usageorderable:
         class:   "%kairos.doctrine_behaviors.usageorderable.class%"
