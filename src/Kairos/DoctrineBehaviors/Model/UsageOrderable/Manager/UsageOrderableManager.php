@@ -72,14 +72,14 @@ Class UsageOrderableManager
 
                 $userId = null;
                 if($user = $this->security->getToken()->getUser()) {
-                    if($user->getId()) {
-                        $userId = $user->getId();
+                    if(is_object($user) && method_exists($user, 'getId')) {
+                        $entity->addUsageTimestamp($timestamp);
+                        $timestamp->setUserId($user->getId())->setUsageOrderable($entity);
+                        $this->save($entity);
                     }
                 }
 
-                $entity->addUsageTimestamp($timestamp);
-                $timestamp->setUserId($userId)->setUsageOrderable($entity);
-                $this->save($entity);
+
             }
         }
     }
